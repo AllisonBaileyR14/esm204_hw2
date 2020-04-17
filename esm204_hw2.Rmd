@@ -14,6 +14,8 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(janitor)
 library(here)
+library(stats)
+library(ggpubr)
 
 ```
 ```{r}
@@ -107,5 +109,37 @@ mc_plot_3 <- ggplot(hw2_data, aes(sample = value)) +
        subtitle = "Carbon Abatement") 
 
 mc_plot_3
+```
+
+```{r}
+formula <- y ~ poly(x, 3, raw = TRUE)
+
+mc_plot_4 <- ggplot(hw2_data, aes(abatement, value, color = mc)) +
+  geom_point() +
+  stat_smooth(aes(fill = mc, color = mc), method = "lm", formula = formula) +
+  stat_regline_equation(
+    aes(label =  paste(..eq.label.., ..adj.rr.label.., sep = "~~~~")),
+    formula = formula
+  ) +
+  theme_bw() 
+# ggpar(p, palette = "jco")
+
+mc_plot_4
+```
+
+```{r}
+formula <- y ~ poly(x, 2, raw = TRUE)
+
+mc_plot_5 <- ggplot(hw2_data, aes(abatement, value, color = mc)) +
+  geom_point() +
+  stat_smooth(aes(fill = mc, color = mc), method = "lm", formula = formula) +
+  stat_regline_equation(
+    aes(label =  paste(..eq.label.., ..adj.rr.label.., sep = "~~~~")),
+    formula = formula
+  ) +
+  theme_bw() 
+# ggpar(p, palette = "jco")
+
+mc_plot_5
 ```
 
