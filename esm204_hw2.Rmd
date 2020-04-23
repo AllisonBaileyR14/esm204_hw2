@@ -151,7 +151,8 @@ mc_plot_5 <- ggplot(hw2_data, aes(abatement, value, color = mc)) +
   theme(
     plot.title=element_text( hjust=0.5, vjust=0.5, face='bold'),
     plot.subtitle = element_text(hjust=0.5, vjust=0.5, face='italic')
-  )
+  ) +
+  xlim(0,150)
 # ggpar(p, palette = "jco")
 
 mc_plot_5
@@ -191,6 +192,7 @@ sector_demand_plot <- ggplot(data = data.frame(x = 0), mapping = aes(x = x)) +
   stat_function(fun = sec_a, aes(color = "sec_a"), size = 2) +
   stat_function(fun = sec_b, aes(color = "sec_b"), size = 2) +
   stat_function(fun = sec_c, aes(color = "sec_c"), size = 2) +
+  stat_function(fun = sec_d, aes(color = "sec_d"), size = 2) +
   scale_color_jco() +
   xlim(0,300) +
   labs(x = "Carbon (ton)",
@@ -204,6 +206,26 @@ sector_demand_plot <- ggplot(data = data.frame(x = 0), mapping = aes(x = x)) +
 
 
 sector_demand_plot
+
+```
+
+```{r}
+sector_a_lc = curve(1.7 + 0.51 * x, from=1, to=300, n=300, xlab="xvalue", ylab="yvalue", 
+             col="#0073C2FF", lwd=2, main="Demand Curve Sector A")
+
+sector_b_lc = curve(8.8 + 0.39 * x, from=1, to=300, n=300, xlab="xvalue", ylab="yvalue", 
+             col="#EFC000FF", lwd=2, add = TRUE, main="Demand Curve Sector B")
+
+sector_c_lc = curve(-27 + 1.1 * x, from=1, to=300, n=300, xlab="xvalue", ylab="yvalue", 
+             col="#868686FF", lwd=2, add = TRUE, main="Demand Curve Sector C")
+
+aggregate_lc_am= curve(0.1856 * x + 0.36092, from=1, to=300, n=300, xlab="xvalue", ylab="yvalue", 
+             col="yellow", lwd=2, add = TRUE, main="Demand Curve Sector D")
+
+# aggregate_lc_br= curve(0.184 * x + 9.282, from=1, to=300, n=300, xlab="xvalue", ylab="yvalue", 
+             # col="green", lwd=2, add = TRUE, main="Demand Curve Sector D")
+
+
 
 ```
 
