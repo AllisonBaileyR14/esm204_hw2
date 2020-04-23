@@ -16,8 +16,12 @@ library(janitor)
 library(here)
 library(stats)
 library(ggpubr)
+library(hrbrthemes)
+library(ggsci)
 
 ```
+
+
 ```{r}
 #Read in hw2 data file
 hw2_data <- read_csv("hw2_data.csv") %>% 
@@ -132,14 +136,74 @@ formula <- y ~ poly(x, 2, raw = TRUE)
 
 mc_plot_5 <- ggplot(hw2_data, aes(abatement, value, color = mc)) +
   geom_point() +
-  stat_smooth(aes(fill = mc, color = mc), method = "lm", formula = formula) +
+  stat_smooth(aes( color = mc), method = "lm", formula = formula) +
   stat_regline_equation(
     aes(label =  paste(..eq.label.., ..adj.rr.label.., sep = "~~~~")),
-    formula = formula
+    formula = formula,
+    label.x = -1, label.y = 160
   ) +
-  theme_bw() 
+  theme_bw() +
+  scale_color_jco() +
+  facet_wrap(~mc) +
+   labs(x = "Carbon (ton)",
+       y = "Price per ton",
+       title = "Marginal Cost by Sector") +
+  theme(
+    plot.title=element_text( hjust=0.5, vjust=0.5, face='bold'),
+    plot.subtitle = element_text(hjust=0.5, vjust=0.5, face='italic')
+  )
 # ggpar(p, palette = "jco")
 
 mc_plot_5
+
+```
+
+```{r}
+
+
+
+sector_a = curve(0.45 + 0.56*(170-x)-0.00035*(170-x)^2, from=1, to=300, n=300, xlab="xvalue", ylab="yvalue", 
+             col="#0073C2FF", lwd=2, main="Demand Curve Sector A")
+
+sector_b = curve(-2 + 0.85*(200-x) - 0.0031*(200-x)^2, from=1, to=300, n=300, xlab="xvalue", ylab="yvalue", 
+             col="#EFC000FF", lwd=2, add = TRUE, main="Demand Curve Sector B")
+
+sector_c = curve(-7.9 + 0.32*(230-x) + 0.0054*(230-x)^2, from=1, to=300, n=300, xlab="xvalue", ylab="yvalue", 
+             col="#868686FF", lwd=2, add = TRUE, main="Demand Curve Sector C")
+
+sector_d = curve(2.1 - 0.06 *(300-x) + 0.0041*(300-x)^2, from=1, to=300, n=300, xlab="xvalue", ylab="yvalue", 
+             col="yellow", lwd=2, add = TRUE, main="Demand Curve Sector D")
+
+
+```
+
+```{r}
+
+sec_a <- function(Q){0.45 + 0.56*(170-Q)-0.00035*(170-Q)^2}
+
+sec_b <- function(Q){-2 + 0.85*(200-Q) - 0.0031*(200-Q)^2}
+
+sec_c <- function(Q){-7.9 + 0.32*(230-Q) + 0.0054*(230-Q)^2}
+
+sec_d <- function(Q){2.1 - 0.06 *(300-Q) + 0.0041*(300-Q)^2}
+
+sector_demand_plot <- ggplot(data = data.frame(x = 0), mapping = aes(x = x)) +
+  stat_function(fun = sec_a, aes(color = "sec_a"), size = 2) +
+  stat_function(fun = sec_b, aes(color = "sec_b"), size = 2) +
+  stat_function(fun = sec_c, aes(color = "sec_c"), size = 2) +
+  scale_color_jco() +
+  xlim(0,300) +
+  labs(x = "Carbon (ton)",
+       y = "Price per ton",
+       title = "Demand by Sector",
+       subtitle = "Country X") +
+  theme(
+    plot.title=element_text( hjust=0.5, vjust=0.5, face='bold'),
+    plot.subtitle = element_text(hjust=0.5, vjust=0.5, face='italic')
+  )
+
+
+sector_demand_plot
+
 ```
 
