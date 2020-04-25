@@ -10,7 +10,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 
-```{r}
+```{r include=FALSE}
 library(tidyverse)
 library(janitor)
 library(here)
@@ -22,19 +22,30 @@ library(ggsci)
 ```
 
 
-```{r}
+```{r include=FALSE}
 #Read in hw2 data file
 hw2_data <- read_csv("hw2_data.csv") %>% 
   clean_names() %>% 
   pivot_longer(c(mc_a, mc_b, mc_c, mc_d), names_to = "mc") 
-  
+
+# rename variables in column mc for easy use
+
+hw2_data$mc[hw2_data$mc == "mc_a"] = "A"
+
+hw2_data$mc[hw2_data$mc == "mc_b"] = "B"
+
+hw2_data$mc[hw2_data$mc == "mc_c"] = "C"
+
+hw2_data$mc[hw2_data$mc == "mc_d"] = "D"
+
+
 num_data <- as.numeric(hw2_data$value, hw2_data$abatement)
 
 ```
 
 1. Start with sector A.  Plot that sector’s marginal abatement cost estimates and write down a plausible functional form for the marginal cost of abatement. Use regression analysis to estimate the parameters of that function.  Repeating this for sectors B, C, and D will give you a model of the marginal cost of abatement function for each sector. How well do your models fit the data for each sector?  You may need to experiment with different functional forms, and you don’t necessarily have to assume the same function for each sector. Produce a plot of the estimated marginal abatement cost functions in all four sectors (this plot should go in your memo). 
 
-```{r}
+```{r eval=FALSE, include=FALSE}
 
 best_fit_a <- lm(value ~ abatement, filter(hw2_data, mc == "mc_a"))
 
@@ -46,7 +57,7 @@ best_fit_d <- lm(value ~ abatement, filter(hw2_data, mc == "mc_d"))
 
 ```
 
-```{r}
+```{r eval=FALSE, include=FALSE}
 mc_plot_1 <- ggplot(hw2_data, aes(x=abatement, y=value)) +
   geom_point(aes(color = mc)) +
   geom_abline(color = "#440154FF",intercept=coef(best_fit_a)[1],slope=coef(best_fit_a)[2]) +
@@ -73,7 +84,14 @@ mc_plot_1
 ```
 
 
-```{r}
+```{r eval=FALSE, include=FALSE}
+
+#a 1.7 + 0.51 * x
+#b 8.8 + 0.39 * x
+#c -27 + 1.1 * x
+#d -12 + 0.55 * x
+
+
 mc_plot_2 <- ggplot(hw2_data, aes(x=abatement, y=value)) +
   geom_point(aes(color = mc)) +
   geom_smooth(alpha = .001, aes(lm = mc, color = mc)) +
@@ -93,30 +111,10 @@ mc_plot_2 <- ggplot(hw2_data, aes(x=abatement, y=value)) +
 mc_plot_2
 ```
 
-```{r}
-mc_plot_3 <- ggplot(hw2_data, aes(sample = value)) +
-  geom_qq(aes(color = mc),
-                 alpha = 0.5,
-                 show.legend = FALSE) +
-  theme_gray() +
-  theme(
-    legend.position="right",
-    plot.title = element_text(size=14)
-  ) +
-  theme(
-    plot.title=element_text( hjust=0.5, vjust=0.5, face='bold'),
-    plot.subtitle = element_text(hjust=0.5, vjust=0.5, face='italic')
-  ) +
-  labs(x = "Carbon (ton)",
-       y = "Price per ton",
-       title = "Marginal Cost by Sector",
-       subtitle = "Carbon Abatement") 
 
-mc_plot_3
-```
+```{r eval=FALSE, include=FALSE}
 
-```{r}
-formula <- y ~ poly(x, 3, raw = TRUE)
+formula <- y ~ poly(x, 1, raw = TRUE)
 
 mc_plot_4 <- ggplot(hw2_data, aes(abatement, value, color = mc)) +
   geom_point() +
@@ -129,76 +127,85 @@ mc_plot_4 <- ggplot(hw2_data, aes(abatement, value, color = mc)) +
 # ggpar(p, palette = "jco")
 
 mc_plot_4
-```
 
-```{r}
-formula <- y ~ poly(x, 2, raw = TRUE)
+```
+Question 1
+
+
+
+```{r echo=FALSE}
+
+# 1 USE THIS GRAPH. COMPLETED
+
+formula <- y ~ poly(x, 1, raw = TRUE)
 
 mc_plot_5 <- ggplot(hw2_data, aes(abatement, value, color = mc)) +
   geom_point() +
-  stat_smooth(aes( color = mc), method = "lm", formula = formula) +
+  stat_smooth(aes(color = mc), method = "lm", formula = formula) +
   stat_regline_equation(
     aes(label =  paste(..eq.label.., ..adj.rr.label.., sep = "~~~~")),
     formula = formula,
     label.x = -1, label.y = 160
   ) +
   theme_bw() +
-  scale_color_jco() +
+  scale_color_jco(name = "Sector", labels = c("A", "B", "C", "D")) +
   facet_wrap(~mc) +
-   labs(x = "Carbon (ton)",
-       y = "Price per ton",
-       title = "Marginal Cost by Sector") +
+   labs(x = "Carbon Abatement (ton)",
+       y = "Abatement Price per ton",
+       title = "Marginal Abatement Cost by Sector") +
   theme(
     plot.title=element_text( hjust=0.5, vjust=0.5, face='bold'),
     plot.subtitle = element_text(hjust=0.5, vjust=0.5, face='italic')
   ) +
-  xlim(0,150)
+  xlim(0,150) 
 # ggpar(p, palette = "jco")
 
 mc_plot_5
 
 ```
 
-```{r}
+```{r eval=FALSE, include=FALSE}
 
+# DO NOT USE THIS GRAPH
 
-
-sector_a = curve(0.45 + 0.56*(170-x)-0.00035*(170-x)^2, from=1, to=300, n=300, xlab="xvalue", ylab="yvalue", 
+sector_a_demand = curve(0.45 + 0.56*(170-x)-0.00035*(170-x)^2, from=1, to=300, n=300, xlab="xvalue", ylab="yvalue", 
              col="#0073C2FF", lwd=2, main="Demand Curve Sector A")
 
-sector_b = curve(-2 + 0.85*(200-x) - 0.0031*(200-x)^2, from=1, to=300, n=300, xlab="xvalue", ylab="yvalue", 
+sector_b_demand = curve(-2 + 0.85*(200-x) - 0.0031*(200-x)^2, from=1, to=300, n=300, xlab="xvalue", ylab="yvalue", 
              col="#EFC000FF", lwd=2, add = TRUE, main="Demand Curve Sector B")
 
-sector_c = curve(-7.9 + 0.32*(230-x) + 0.0054*(230-x)^2, from=1, to=300, n=300, xlab="xvalue", ylab="yvalue", 
+sector_c_demand = curve(-7.9 + 0.32*(230-x) + 0.0054*(230-x)^2, from=1, to=300, n=300, xlab="xvalue", ylab="yvalue", 
              col="#868686FF", lwd=2, add = TRUE, main="Demand Curve Sector C")
 
-sector_d = curve(2.1 - 0.06 *(300-x) + 0.0041*(300-x)^2, from=1, to=300, n=300, xlab="xvalue", ylab="yvalue", 
+sector_d_demand = curve(2.1 - 0.06 *(300-x) + 0.0041*(300-x)^2, from=1, to=300, n=300, xlab="xvalue", ylab="yvalue", 
              col="yellow", lwd=2, add = TRUE, main="Demand Curve Sector D")
 
 
 ```
+Question 2
+```{r echo=FALSE}
 
-```{r}
+# 2 USE THIS GRAPH
 
-sec_a <- function(Q){0.45 + 0.56*(170-Q)-0.00035*(170-Q)^2}
+sec_a_demand <- function(Q){1.7 + 0.51 * (170-Q)}
 
-sec_b <- function(Q){-2 + 0.85*(200-Q) - 0.0031*(200-Q)^2}
+sec_b_demand <- function(Q){8.8 + 0.39 * (200-Q)}
 
-sec_c <- function(Q){-7.9 + 0.32*(230-Q) + 0.0054*(230-Q)^2}
+sec_c_demand <- function(Q){-27 + 1.1 * (230-Q)}
 
-sec_d <- function(Q){2.1 - 0.06 *(300-Q) + 0.0041*(300-Q)^2}
+sec_d_demand <- function(Q){-12 + 0.55 * (300-Q)}
 
 sector_demand_plot <- ggplot(data = data.frame(x = 0), mapping = aes(x = x)) +
-  stat_function(fun = sec_a, aes(color = "sec_a"), size = 2) +
-  stat_function(fun = sec_b, aes(color = "sec_b"), size = 2) +
-  stat_function(fun = sec_c, aes(color = "sec_c"), size = 2) +
-  stat_function(fun = sec_d, aes(color = "sec_d"), size = 2) +
-  scale_color_jco() +
+  stat_function(fun = sec_a_demand, aes(color = "sec_a_demand"), size = 1) +
+  stat_function(fun = sec_b_demand, aes(color = "sec_b_demand"), size = 1) +
+  stat_function(fun = sec_c_demand, aes(color = "sec_c_demand"), size = 1) +
+  stat_function(fun = sec_d_demand , aes(color = "sec_d_demand "), size = 1) +
+  scale_color_jco(name = "Sector", labels = c("A", "B", "C", "D")) +
   xlim(0,300) +
-  labs(x = "Carbon (ton)",
-       y = "Price per ton",
-       title = "Demand by Sector",
-       subtitle = "Country X") +
+  labs(x = "Carbon Abatement(ton)",
+       y = "Abatement Price per ton",
+       title = "Abatement Demand by Sector",
+       subtitle = "Country X & Y") +
   theme(
     plot.title=element_text( hjust=0.5, vjust=0.5, face='bold'),
     plot.subtitle = element_text(hjust=0.5, vjust=0.5, face='italic')
@@ -208,24 +215,237 @@ sector_demand_plot <- ggplot(data = data.frame(x = 0), mapping = aes(x = x)) +
 sector_demand_plot
 
 ```
+Question 3
+```{r echo=FALSE}
 
-```{r}
-sector_a_lc = curve(1.7 + 0.51 * x, from=1, to=300, n=300, xlab="xvalue", ylab="yvalue", 
-             col="#0073C2FF", lwd=2, main="Demand Curve Sector A")
+# USE THIS FOR Q 3
 
-sector_b_lc = curve(8.8 + 0.39 * x, from=1, to=300, n=300, xlab="xvalue", ylab="yvalue", 
-             col="#EFC000FF", lwd=2, add = TRUE, main="Demand Curve Sector B")
+#sector_a_lc = curve(1.7 + 0.51 * x, from=1, to=300, n=300, xlab="xvalue", ylab="yvalue", 
+             #col="#0073C2FF", lwd=2, main="Demand Curve Sector A")
 
-sector_c_lc = curve(-27 + 1.1 * x, from=1, to=300, n=300, xlab="xvalue", ylab="yvalue", 
-             col="#868686FF", lwd=2, add = TRUE, main="Demand Curve Sector C")
+#sector_b_lc = curve(8.8 + 0.39 * x, from=1, to=300, n=300, xlab="xvalue", ylab="yvalue", 
+             #col="#EFC000FF", lwd=2, add = TRUE, main="Demand Curve Sector B")
 
-aggregate_lc_am= curve(0.1856 * x + 0.36092, from=1, to=300, n=300, xlab="xvalue", ylab="yvalue", 
-             col="yellow", lwd=2, add = TRUE, main="Demand Curve Sector D")
+#sector_c_lc = curve(-27 + 1.1 * x, from=1, to=300, n=300, xlab="xvalue", ylab="yvalue", 
+             #col="#868686FF", lwd=2, add = TRUE, main="Demand Curve Sector C")
+
+#aggregate_lc_am= curve(0.1856 * x + 0.36092, from=1, to=300, n=300, xlab="xvalue", ylab="yvalue", 
+             #col="yellow", lwd=2, add = TRUE, main="Demand Curve Sector D")
+
+
+#total_cost <- (0.1856 * 300 + 0.36092) * 300
+
 
 # aggregate_lc_br= curve(0.184 * x + 9.282, from=1, to=300, n=300, xlab="xvalue", ylab="yvalue", 
              # col="green", lwd=2, add = TRUE, main="Demand Curve Sector D")
 
+sec_a_ln <- function(Q){1.7 + 0.51 * Q}
+
+sec_b_ln <- function(Q){8.8 + 0.39 * Q}
+
+sec_c_ln <- function(Q){-27 + 1.1 * Q}
+
+sec_agg_x <- function(Q){0.1856 * Q + 0.36092}
+
+sec_d_ln <- function(Q){-12 + 0.55 *Q}
+
+sector_mc_plot_x <- ggplot(data = data.frame(x = 0), mapping = aes(x = x)) +
+  stat_function(fun = sec_a_ln, aes(color = "sec_a_ln"), size = 1) +
+  stat_function(fun = sec_b_ln, aes(color = "sec_b_ln"), size = 1) +
+  stat_function(fun = sec_c_ln, aes(color = "sec_c_ln"), size = 1) +
+  stat_function(fun = sec_agg_x, aes(color = "sec_agg_x"), size = 1) +
+  scale_color_jco(name = "Sector", labels = c("A", "Aggregate", "B", "C")) +
+  xlim(0,300) +
+  labs(x = "Carbon Abatement (ton)",
+       y = "Abatement Price per ton",
+       title = "Marginal Abatement Cost by Sector",
+       subtitle = "Country X") +
+  theme(
+    plot.title=element_text( hjust=0.5, vjust=0.5, face='bold'),
+    plot.subtitle = element_text(hjust=0.5, vjust=0.5, face='italic')
+  )
+
+
+sector_mc_plot_x
 
 
 ```
+Question 4
+```{r echo=FALSE}
+# Use this for Q. 4
 
+
+sector_mc_plot_xy <- ggplot(data = data.frame(x = 0), mapping = aes(x = x)) +
+  stat_function(fun = sec_a_ln, aes(color = "sec_a_ln"), size = 1) +
+  stat_function(fun = sec_b_ln, aes(color = "sec_b_ln"), size = 1) +
+  stat_function(fun = sec_c_ln, aes(color = "sec_c_ln"), size = 1) +
+  stat_function(fun = sec_d_ln, aes(color = "sec_d_ln"), size = 1) +
+  scale_color_jco() +
+  xlim(0,300) +
+  ylim(0, 300) +
+  labs(x = "Carbon (ton)",
+       y = "Price per ton",
+       title = "Marginal Cost by Sector",
+       subtitle = "Country X & Y Cap & Trade") +
+  theme(
+    plot.title=element_text( hjust=0.5, vjust=0.5, face='bold'),
+    plot.subtitle = element_text(hjust=0.5, vjust=0.5, face='italic')
+  ) +
+  annotate("segment", x = 300, xend = 0, y = 56, yend = 56,
+  colour = "black", size = 1) +
+  geom_segment(aes(x = 25, y = -25, xend = 25, yend = 0), color = "black", size=1) +
+  geom_segment(aes(x = 106, y = 0, xend = 106, yend = 56), color = "black", size=1) +
+  geom_segment(aes(x = 120, y = 0, xend = 120, yend = 56), color = "black", size=1)
+  
+
+sector_mc_plot_xy
+
+# Sector D is making out thus far. If the total emissions tht need to be abated is 300, that would be 75 units split evenly.  Setting the price at $42 dollars per unit will ensure that all sectors combined will reach 300 units.  However, at $42 dollars per unit, Sector D has 100 units.  That's 25 units leftover to sell. Sector's B and C are exactly at 75 unit capacity and don't need to buy any units nor do they have capacity to sell any units.  However, Sector A is at 63 units.  They are 12 units short of their target. So Sector D can sell their units and profit 516 dollars. 
+
+# The price per ton at abating. $56 tons. 
+# A = 106
+# B = 120
+# C = 73
+
+
+
+```
+ 
+```{r}
+
+sec_a_ln <- function(Q){1.7 + 0.51 * Q}
+
+sec_b_ln <- function(Q){8.8 + 0.39 * Q}
+
+sec_c_ln <- function(Q){-27 + 1.1 * Q}
+
+sec_agg_x <- function(Q){0.1856 * Q + 0.36092}
+
+sec_d_ln <- function(Q){-12 + 0.55 *Q}
+
+sec_agg_x_y <- function(Q){0.13897*Q - 3.03881}
+
+sector_mc_plot_x_y <- ggplot(data = data.frame(x = 0), mapping = aes(x = x)) +
+  stat_function(fun = sec_a_ln, aes(color = "sec_a_ln"), size = 1) +
+  stat_function(fun = sec_b_ln, aes(color = "sec_b_ln"), size = 1) +
+  stat_function(fun = sec_c_ln, aes(color = "sec_c_ln"), size = 1) +
+  stat_function(fun = sec_d_ln, aes(color = "sec_d_ln"), size = 1) +
+  scale_color_jco(name = "Sector") +
+  xlim(0,300) +
+  labs(x = "Carbon Abatement (ton)",
+       y = "Abatement Price per ton",
+       title = "Marginal Abatement Cost by Sector",
+       subtitle = "Country X & Y") +
+  theme(
+    plot.title=element_text( hjust=0.5, vjust=0.5, face='bold'),
+    plot.subtitle = element_text(hjust=0.5, vjust=0.5, face='italic')
+  )
+
+
+sector_mc_plot_x_y
+
+
+```
+ 
+```{r}
+sec_a_demand <- function(Q){1.7 + 0.51 * (170-Q)}
+
+sec_b_demand <- function(Q){8.8 + 0.39 * (200-Q)}
+
+sec_c_demand <- function(Q){-27 + 1.1 * (230-Q)}
+
+sec_d_demand <- function(Q){-12 + 0.55 * (300-Q)}
+
+x_agg_demand <- function(Q){-0.18403*Q + 110.665}
+
+
+sec_agg_x_price <- 55.456
+
+sec_a_welfare <- 64.5961 
+
+sec_b_welfare <- 80.3692
+
+sec_c_welfare <- 155
+
+sec_d_welfare <- 177
+
+total_units_wtp <- sec_a_welfare + sec_b_welfare + sec_c_welfare # Equals 300
+
+
+sector_demand_plot_mwtp <- ggplot(data = data.frame(x = 0), mapping = aes(x = x)) +
+  stat_function(fun = sec_d_demand , aes(color = "sec_d_demand "), size = 1) +
+  geom_segment(aes(x = 177, y = -25, xend = 177, yend = 300), color = "black", size=1) +
+  geom_hline(yintercept=56.456, color="black", size=1) + 
+   geom_hline(yintercept=0, color="black", size=1) + 
+  annotate("text", x = 50, y = 25,
+  label = "A", parse = TRUE) +
+  annotate("text", x = 50, y = 75,
+  label = "A", parse = TRUE) +
+  annotate("text", x = 200, y = 25,
+  label = "B", parse = TRUE) +
+  annotate("text", x = 275, y = 25,
+  label = "D + B", parse = TRUE) +
+  annotate("text", x = 295, y = -5,
+  label = "C", parse = TRUE) +
+  scale_color_jco(name = "Sector") +
+  xlim(0,300) +
+  labs(x = "Carbon Abatement(ton)",
+       y = "Abatement Price per ton",
+       title = "Abatement Demand by Sector",
+       subtitle = "Country X & Y") +
+  theme(
+    plot.title=element_text( hjust=0.5, vjust=0.5, face='bold'),
+    plot.subtitle = element_text(hjust=0.5, vjust=0.5, face='italic')
+  )
+
+
+sector_demand_plot_mwtp
+
+```
+ 
+```{r}
+ Original_Welfare <- A_B - C # 21411.831
+ 
+ A_B <- 21280.923
+ 
+ C <- -130.908
+ 
+ D_B <- 4015.513504
+ 
+ D <- 6821.088
+ 
+ B <- 2805.574496
+ 
+ Trading_Welfare = A_B + D - B # 25296.436504
+ 
+ answer <- Trading_Welfare - Original_Welfare
+ 
+ # Sector D will enter the market and TRADE. YAYYYYYYYYYY.
+ 
+
+```
+
+  Original Welfare = A + B - C
+ 
+ A_B <- 21,280.923
+ 
+ C = -130.908
+ 
+ Trading Welfare = A + D + B
+ 
+ If TW - OW = + then will trade
+ 
+ If TW - OW = - then will NOT trade
+ 
+ 
+ 
+ 
+ 
+ geom_hline(yintercept=0, color="black", size=1) +
+  geom_hline(yintercept=10, color="black", size=1) + 
+  geom_hline(yintercept=50, color="black", size=1) +
+  geom_hline(yintercept=75, color="black", size=1) +
+  geom_hline(yintercept=100, color="black", size=1) +
+  geom_hline(yintercept=125, color="black", size=1) +
+  geom_segment(aes(x = 25, y = -25, xend = 25, yend = 0), color = "black", size=1) +
+  geom_segment(aes(x = 50, y = 20, xend = 50, yend = 0), color = "black", size=1)
