@@ -389,7 +389,7 @@ sector_demand_plot_mwtp <- ggplot(data = data.frame(x = 0), mapping = aes(x = x)
   label = "C", parse = TRUE) +
   scale_color_jco(name = "Sector") +
   xlim(0,300) +
-  labs(x = "Carbon Abatement(ton)",
+  labs(x = "Carbon Abatement (ton)",
        y = "Abatement Price per ton",
        title = "Abatement Demand by Sector",
        subtitle = "Country X & Y") +
